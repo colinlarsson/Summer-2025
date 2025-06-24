@@ -219,6 +219,10 @@ If State <> lastState Then
     lastState = State
 End If
 
+'If .FDCal <> .. Then
+'    .FDCal = ..
+'End If
+
 '_____________________________________________________________________________________________________________
 
 Select Case .phase
@@ -534,7 +538,6 @@ Select Case .phase
     End If
     '_____________________________________________________________________________________________________________
         s(2) = Scale_Weight(2) 'Static of Interval scale weight 
-        s(3) = s(2) 'Initialize end weight to prevent negative display if feed is skipped
         If .InoculationTime_H > s(6) AndAlso s(4) <> 0 AndAlso (.runtime_H - .phaseStart_H) > 0.1/60 Then 'waits for respective feed time + 6s delay; 
             .phase = .phase + 1
 	    ElseIf s(4) = 0 Then 'if no feed A is entered, skip to glucose phase
@@ -577,7 +580,7 @@ Select Case .phase
         
         If abs(MajorFeed_Fed) > s(4) and (.runtime_H - .phaseStart_H) > 0.1/60 Then '(s(1) - s(2)) > s(12)
             .pumpCActive = False
-            .logmessage("██ - Phase: 9 - Day " & procDay & " - Unit #: " & .unit & ". - ██ Feed A Fed:  " & formatNumber(MajorFeed_Fed, 2) & " [g]")
+            .logmessage("██ - Phase: 9 - Day " & procDay & " - Unit #: " & .unit & ". - ██ -  " & procDay & ":  " & formatNumber(MajorFeed_Fed, 2) & " [g]")
             .phase = .phase + 1
         Else if (.runtime_H - .phaseStart_H) > 0.1/60 and .VCPV > (1.2 * s(4)) 'if dynamic totalizer is above 120% of target weight then stop
             .pumpCActive = False
@@ -596,7 +599,6 @@ Select Case .phase
 
     Case 10 'Glucose Decision Tree
         s(10) = Scale_Weight(4) 'sets starting glucose interval scale weight
-        s(11) = s(10) 'Initialize end weight to prevent negative display if feed is skipped
         If procDay = 0 Then 'should never happen
             .logmessage("Phase: 10.  Day: " & procDay & ".  Unit #: " & .unit & ".  ---No Glucose addition needed, proceeding to Phase 13.")
             .phase = .phase + 5
@@ -645,7 +647,6 @@ Select Case .phase
     End If
     '_____________________________________________________________________________________________________________
         s(10) = Scale_Weight(4) 'Static glucose interval starting scale weight
-        s(11) = s(10) 'Initialize end weight to prevent negative display
         s(12) = .offlineB 'recorded glucose value
         
         If .InoculationTime_H > s(6) and (.runtime_H - .phaseStart_H) > 0.1/60 Then 'waits for respective feed time + 6s delay; 

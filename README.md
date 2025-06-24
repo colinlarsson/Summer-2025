@@ -4,6 +4,18 @@
 
 ### 2025-06-24 Updates 4.17
 
+**Phase 8:** When the start weight for Feed A is recorded in s(2), end weight s(3) is copied. This prevents .intF from showing incorrect values when Feed A is skipped.
+
+**Phase 10 & 12:** Same with start weight for glucose s(10) and end weight s(11). This is done in both phases where s(10) can be set.
+
+**Phase 11:** The previous fix (glucoseFeed_Fed = 0) no longer required. Removed
+
+#### Lines: 579 
+    - Fixed logmessage
+
+
+### 2025-06-24 Updates 4.17
+
 Lines: 40 - 50
     - Added calculated process day to keep procDay from going negative
 
@@ -57,3 +69,5 @@ Line: 537-538
 
 Line: 210
     - Added fcal automatic updates, need to give option in form.
+
+
