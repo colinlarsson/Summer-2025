@@ -45,3 +45,11 @@ Lines: 410 - 424 *fixed incorrect time to feed reading
     - inT (time to feed) not set until phase 3
     - .intT = s(6) - .inoculationTime_H 'time to feed in hours. 
     - need to verify it has time to update
+
+## 2025-06-24 Updates 4.17
+
+Lines: 40 - 50
+    - Added calculated process day to keep procDay from going negative
+
+Lines: 200
+    - Moved .inT to display after phase 3

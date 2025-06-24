@@ -38,9 +38,17 @@ Scale_Weight(5) = p.MAPV 'p.MAPV 'current weight glucose
 
 'Process Day
 Dim procDay As Integer 'Day used for logmessages and acknowledge glucose sample
-procDay = int((p.inoculationTime_H - 6) / 24)
 
-Dim sampleDelay as Double = 4 'Set to 2/60 for testing 
+Dim calculatedProcDay As Integer
+calculatedProcDay = int((p.inoculationTime_H - 6) / 24)
+
+If calculatedProcDay < 0 Then
+    procDay = 0
+Else
+    procDay = calculatedProcDay
+End If
+
+Dim sampleDelay as Double = 5/60 'Set to 2/60 for testing 
 
 Dim Active_Feed_TimePoint(1) as Double 
 Active_Feed_TimePoint(1) = 0
@@ -87,7 +95,7 @@ Feed_Time(11) = 502
 Feed_Time(12) = 503
 
 Major_Feed_TargetWeight_Value(1) = 20
-Major_Feed_TargetWeight_Value(2) = 20
+Major_Feed_TargetWeight_Value(2) = 0
 Major_Feed_TargetWeight_Value(3) = 15
 Major_Feed_TargetWeight_Value(4) = 30
 Major_Feed_TargetWeight_Value(5) = 96.3

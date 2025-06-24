@@ -49,11 +49,13 @@ If P IsNot Nothing Then
 		elseif .extA > capCriteria then
 			.intY = 1
             s(15) = .inoculationtime_h ' CRITICAL: Persist waitStart time
-			.logmessage("Capacitance Criteria Met. Waiting " & (CAP_OVER_TIME * 60) & " minutes for confirmation.")
+			.logmessage("Capacitance Criteria Met. Waiting " & (capOvertime * 60) & " minutes for confirmation.")
+			.logmessage("Wait start time: " & s(15))
 		elseif .inoculationtime_h >= timeLimit then
 			.intY = 2
             s(16) = .inoculationtime_h ' CRITICAL: Persist rampStart time
             .logmessage("Time Limit Reached, Starting Temp Ramp")
+
 		end if
 	case 1 'wait time to see if capacitance is still good
 		' s(15) > 0 check ensures we don't trigger on initialization
@@ -62,7 +64,6 @@ If P IsNot Nothing Then
             s(16) = .inoculationtime_h ' CRITICAL: Persist rampStart time
             .logmessage("Capacitance Criteria stable, Starting Temp Ramp")
             .logmessage("Rampstart: " & s(16))
-            .logmessage("Waitstart: " & s(15))
 		elseif .extA < capCriteria then
 			.intY = 0
             s(15) = 0 ' Reset wait timer since criteria is no longer met
