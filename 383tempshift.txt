@@ -1,0 +1,41 @@
+If P IsNot Nothing Then
+    With P
+
+    If IsEmpty(.tempStage) Then .tempStage = 0
+    If IsEmpty(.phasestart_h) Then .phasestart_h = .inoculationtime_h
+
+    Select Case .tempStage
+        Case 0
+            If ext.k < capCriteria And .inoculationtime_h < timeLimit Then
+                .TSP = initialTemp
+            ElseIf ext.k > capCriteria Then
+                .tempStage = 1
+                .phasestart_h = .inoculationtime_h
+            ElseIf .inoculationtime_h > timeLimit Then
+                .tempStage = 2
+                .phasestart_h = .inoculationtime_h
+            End If
+
+        Case 1
+            If ext.k > capCriteria And (.inoculationtime_h - .phasestart_h) >= capOverTime Then
+                .tempStage = 2
+                .phasestart_h = .inoculationtime_h
+            ElseIf ext.k < capCriteria Then
+                .tempStage = 0
+            End If
+
+        Case 2
+            If (.inoculationtime_h - .phasestart_h) < rampDuration Then
+                rampPercent = (.inoculationtime_h - .phasestart_h) / rampDuration
+                .TSP = initialTemp - rampPercent * tempDiff
+            Else
+                .TSP = tempTarget
+                .tempStage = 3
+            End If
+
+        Case 3
+            .TSP = tempTarget
+    End Select
+
+    End With
+End If

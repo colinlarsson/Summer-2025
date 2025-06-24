@@ -1,0 +1,55 @@
+' Name: Capacitance Based Temp Shift for Project 383 with intY
+' Description: This script shifts the temperature setpoint based on capacitance criteria and time limits, using intY to track stages.
+' Author: Brendan McGuire, Colin Larsson
+
+dim capCriteria as double = 10.8  ' capacitance target
+dim timeLimit as double = 68  ' hour limit on the shift
+dim initialTemp as double = 36 'initial temperature
+dim tempTarget as double = 32  'temp to shift to
+dim rampDuration as double = 2   'ramp the temp shift over time in hours
+dim capOverTime as double = 0.5 'in hours, how long must the capacitance be over the limit?
+dim rampEndTime as double = 1 ' empty for now but will contain the end time of the ramping
+dim tempDiff as double = initialTemp - tempTarget
+dim rampPercent as double = 50 ' how far along the ramp are we so far
+'dim .intY as integer ' this is the stage of the temp shift, 0 = initial, 1 = wait, 2 = ramping, 3 = done
+
+If P IsNot Nothing Then
+    With P
+
+    select case .intY
+	case 0 'initialize
+		if .extA < capCriteria and .inoculationtime_h < timeLimit then
+			.TSP = initialTemp
+		elseif .extA > capCriteria then
+			.intY = 1
+            .logmessage("Capacitance Criteria Met, Waiting to 30 minutes Confirm")
+		elseif .inoculationtime_h > timeLimit then
+			.intY = 2
+            .logmessage("Time Limit Reached, Starting Temp Ramp")
+		end if
+	case 1 'wait time to see if capacitance is still good
+		if .extA > capCriteria and .inoculationtime_h - .phasestart_h >= capOvertime then
+			.intY = 2
+            .logmessage("Capacitance Criteria stable, Starting Temp Ramp")
+		elseif .extA < capCriteria then
+			.intY = 0
+            .logmessage("Capacitance Criteria Not Met, Returning to Initial State") 
+		end if
+	case 2 'the criteria has been met, start ramping
+		if .inoculationtime_h - .phasestart_h < rampDuration then
+			rampEndtime = .phasestart_h + rampDuration
+			rampPercent = ( .inoculationtime_h - .phasestart_h ) / rampDuration
+			.TSP = initialTemp - rampPercent * tempDiff
+		elseif .inoculationtime_h - .phasestart_h >= rampDuration then	
+			.TSP = tempTarget
+			.intY = 3
+		end if
+	' Final stage: Maintain the target temperature once ramping is complete
+	case 3
+			.TSP = tempTarget
+	end select
+
+    End With
+End If
+
+End If  
