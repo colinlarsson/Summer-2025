@@ -1,0 +1,45 @@
+Sub Main()
+    ' Constants
+    Dim MAX_SHOTS
+    Dim THRESHOLD
+    Dim SHOT_VOLUME
+    MAX_SHOTS = 5
+    THRESHOLD = 500
+    SHOT_VOLUME = 0.5
+
+    Dim CURRENT_CASE
+    Dim NUMBER_SHOTS
+    CURRENT_CASE = a(17)
+    NUMBER_SHOTS = a(18)
+
+    Select Case CURRENT_CASE
+        
+        Case 0 ' Idle: Wait for foam to rise
+            If p.LvlPV >= THRESHOLD Then
+                CURRENT_CASE = 1
+            End If
+
+        Case 1 ' Dispense anti-foam
+            If NUMBER_SHOTS < MAX_SHOTS Then
+                p.PumpAActive = 1
+                p.LogMessage("Shot Dispensed: " & SHOT_VOLUME & " mL")
+                CURRENT_CASE = 2
+            Else
+                CURRENT_CASE = 3
+            End If
+
+        Case 2 ' Finish shot
+            NUMBER_SHOTS = NUMBER_SHOTS + 1
+            p.PumpAActive = 0
+            p.LogMessage("Shot #" & NUMBER_SHOTS & " completed")
+            CURRENT_CASE = 0
+
+        Case 3 ' Max shots reached
+            p.LogMessage("Max Shots Reached")
+            ' Stay in lockout until reset manually or by another condition
+    End Select
+
+    ' Save state in array
+    a(17) = CURRENT_CASE
+    a(18) = NUMBER_SHOTS
+End Sub

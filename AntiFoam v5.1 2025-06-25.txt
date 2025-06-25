@@ -1,0 +1,54 @@
+If P isNot Nothing Then
+With P 
+
+' --- Constants ---
+Dim MAX_SHOTS
+Dim THRESHOLD
+Dim SHOT_VOLUME
+MAX_SHOTS = 5
+THRESHOLD = 500
+SHOT_VOLUME = 0.5
+
+' --- Persistent Variables (stored in array) ---
+Dim CURRENT_CASE
+Dim NUMBER_SHOTS
+
+' --- Store persistent state ---
+If s is Nothing then
+    Dim a(22) as Double
+    a(17) = CURRENT_CASE
+    a(18) = NUMBER_SHOTS
+    s = a
+End If
+
+' --- Main logic ---
+If CURRENT_CASE = 0 Then
+    ' Case 0: Wait for foam to rise
+    If .LvlPV >= THRESHOLD Then
+        CURRENT_CASE = 1
+    End If
+
+ElseIf CURRENT_CASE = 1  Then
+    ' Case 1: Dispense anti-foam
+    If NUMBER_SHOTS < MAX_SHOTS Then
+        .PumpAActive = 1
+        .LogMessage("Shot dispensed: " & SHOT_VOLUME & " mL")
+        CURRENT_CASE = 2
+    Else
+        CURRENT_CASE = 3
+    End If
+
+ElseIf CURRENT_CASE = 2 Then
+    ' Case 2: Finish shot
+    NUMBER_SHOTS = NUMBER_SHOTS + 1
+    .PumpAActive = 0
+    .LogMessage("Shot #" & NUMBER_SHOTS & " completed")
+    CURRENT_CASE = 0
+
+ElseIf CURRENT_CASE = 3 Then
+    ' Case 3: Max shots reached
+    .LogMessage("Maximum amount of anti-foam shots reached.")
+End if
+
+End With
+End If

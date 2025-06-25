@@ -1,0 +1,47 @@
+Dim AFOAM_COUNTER, MAX_SHOTS, NUMBER_SHOTS, CURRENT_CASE
+Dim SHOT_VOLUME, AFOAM_SHOT_FED, AFOAM_THRESHOLD
+
+SHOT_VOLUME = 0.5
+MAX_SHOTS = 5
+NUMBER_SHOTS = 0
+CURRENT_CASE = 0
+
+Sub Main()
+    Select Case CURRENT_CASE
+        Case 0 ' Foam under control
+            If p.LvlPV >= 500 Then
+                CURRENT_CASE = 1
+            End If
+
+        Case 1 ' Dispense anti-foam
+            If NUMBER_SHOTS < MAX_SHOTS Then
+                Call PumpOn()
+                AFOAM_SHOT_FED = SHOT_VOLUME
+                Call logmessage("Shot Dispensed: " & SHOT_VOLUME & " mL")
+                CURRENT_CASE = 2
+            Else
+                CURRENT_CASE = 3
+            End If
+
+        Case 2 ' Finish shot, update counter
+            NUMBER_SHOTS = NUMBER_SHOTS + 1
+            Call PumpOff()
+            Call LogMessage("Shot #" & NUMBER_SHOTS & " completer")
+            CURRENT_CASE = 0
+
+        Case 3
+            Call LogMessage("Max Shots Reached.")
+    End Select
+End Sub
+
+Sub PumpOn()
+    p.PumpAActive = 1
+End Sub
+
+Sub PumpOff()
+    p.PumpAActive = 0
+End Sub
+
+Sub LogMessage(msg)
+    p.logmessage("")
+End Sub

@@ -2,6 +2,13 @@
 
 ## Automated Feeding Update Log
 
+### 2025-06-25 Updates To timer
+
+Lines: 273 - 278
+    - added earlier initialization for feed weight and time, need to verify that it's overwritten
+
+Lines: 202 - 207
+    - intT will display 0 when below 0
 ### 2025-06-25 Updates Autofeed 4.19
 
 Archived older versions of script, added antifoam test scripts

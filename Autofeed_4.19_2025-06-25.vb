@@ -161,6 +161,7 @@ a(12) = 0 'user input glucose
 s = a
 End If
 
+
 '*************************************************************************************************************
 'Tornado Ramen Script 
 'Dim GlucoseReading as Double = p.ExtE 
@@ -196,8 +197,16 @@ With P
     .intL = s(3) 'dynamic interval
     .intQ = procDay
     .intS = s(9)
-'   .intT = s(6) - .inoculationTime_H 'time to feed in hours. changing, won't be set until after phase 3 runs
+    '.intT = s(6) - .inoculationTime_H 'time to feed in hours. changing, won't be set until after phase 3 runs
 
+    Dim timeRemaining As Double = s(6) - .inoculationTime_H
+    If timeRemaining < 0 Then
+        .intT = 0
+    Else
+        .intT = timeRemaining
+    End If
+    
+    
 '_____________________________________________________________________________________________________________
 Static lastState As Integer
 If State <> lastState Then

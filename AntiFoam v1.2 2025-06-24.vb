@@ -3,9 +3,15 @@ Dim SHOT_VOLUME As Double ' Can use array or an offline value
 Dim MAX_SHOTS As Integer ' Maximum number of shots to add per day
 Dim AFOAM_SHOT_FED As Double ' Record volumes before and after shot, store in array a(18), a(19)
 Dim AFOAM_THRESHOLD As Double ' Keep in array, internal value or offline value
+Dim NUMBER_SHOTS 
+
+SHOT_VOLUME = p.VPV(0.5)
+NUMBER_SHOTS = amount of times SHOT_VOLUME is performed
+MAX_SHOTS = NUMBER_SHOTS = 5
 
 ' Case 0 logic
 Sub Case0()
+    If p.LvlPV >= 500
     ' Initial waiting for level.pv to rise above threshold
     ' Check for counter number and total volume from totalizer
 End Sub
