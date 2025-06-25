@@ -1,11 +1,12 @@
 'Abbvie | Dynamic time trigger and gravimetric response feed | JDL CL 03-13-2025
-'Version 4.1 Last Update 2025-06-24
+'Version 4.15 Last Update 2025-06-13
 
 
 'A = Feed B volumetric f.cal = 105
 'B = Base not controlled
 'C = Feed A gravimetric f.cal = 15.92
 'D = Glucose gravimetric f.cal = 24
+
 
 
 '*************************************************************************************************************
@@ -158,6 +159,9 @@ a(9) = FeedB_VolumeTarget 'initialized to 0
 a(10) = 0 'Glucose interval starting bottleweight
 a(11) = 0 'current weight
 a(12) = 0 'user input glucose
+a(17) = 0 ' Example: AFOAM_COUNTER   'Line 162, 163, and 164 are for experimental antifoam script.
+a(18) = 0 ' Example: SHOT_VOLUME
+a(19) = 0 ' Example: MAX_SHOTS
 s = a
 End If
 
@@ -218,6 +222,10 @@ If State <> lastState Then
     lastState = State
 End If
 
+'If .FDCal <> .. Then
+'    .FDCal = ..
+'End If
+
 '_____________________________________________________________________________________________________________
 
 Select Case .phase
@@ -265,6 +273,12 @@ Select Case .phase
 
     If .FCCal <> 24 Then
         .FCCal = 24
+    End If
+
+    If a(17) < a(19) Then 'Example condition for Antifoam logic ' 'Line 278 - 282 are for experimental antifoam script.
+        ' Antifoam logic implementation such as:
+        ' a(17) = a(17) + 1 ' Increment AFOAM_COUNTER
+        ' Adjust volume or other parameters as needed
     End If
 
     If .InoculationTime_H > 0 And (.runtime_H - .phaseStart_H) > 0.1 / 60 Then
@@ -446,6 +460,11 @@ Select Case .phase
 '==========================================================================================
 
     Case 5 'Waiting for feed B to start
+        If a(17) > a(19) Then                               'Line 463 - 467 are for experimental antifoam script.
+            'Logic when AFOAM_COUNTER exceeds MAX_SHOTS
+            .logAlarm("Antifoam Shot Limit Reached")
+            .phase = 2
+        End If
     If ((.runtime_H - .PhaseStart_H) > 0.1/60) and .inoculationTime_H > s(6) and s(9) <> 0 Then '6 second delay to ensure values get stored to array. also accounts for hiccups in DWC, checks for fb entry
         .logmessage("Phase: 5.  Day: " & procDay & ".  Unit #: " & .unit & ".  ---Feed B Starting: " & s(9) & " [g] to be fed.")
         .phase = .phase + 1
@@ -533,7 +552,6 @@ Select Case .phase
     End If
     '_____________________________________________________________________________________________________________
         s(2) = Scale_Weight(2) 'Static of Interval scale weight 
-        s(3) = s(2) 'Initialize end weight to prevent negative display if feed is skipped
         If .InoculationTime_H > s(6) AndAlso s(4) <> 0 AndAlso (.runtime_H - .phaseStart_H) > 0.1/60 Then 'waits for respective feed time + 6s delay; 
             .phase = .phase + 1
 	    ElseIf s(4) = 0 Then 'if no feed A is entered, skip to glucose phase
@@ -576,7 +594,7 @@ Select Case .phase
         
         If abs(MajorFeed_Fed) > s(4) and (.runtime_H - .phaseStart_H) > 0.1/60 Then '(s(1) - s(2)) > s(12)
             .pumpCActive = False
-            .logmessage("██ - Phase: 9 - Day " & procDay & " - Unit #: " & .unit & ". - ██ Feed A Fed:  " & formatNumber(MajorFeed_Fed, 2) & " [g]")
+            .logmessage("██ - Phase: 9 - Day " & procDay & " - Unit #: " & .unit & ". - ██ -  " & procDay & ":  " & formatNumber(MajorFeed_Fed, 2) & " [g]")
             .phase = .phase + 1
         Else if (.runtime_H - .phaseStart_H) > 0.1/60 and .VCPV > (1.2 * s(4)) 'if dynamic totalizer is above 120% of target weight then stop
             .pumpCActive = False
@@ -595,7 +613,6 @@ Select Case .phase
 
     Case 10 'Glucose Decision Tree
         s(10) = Scale_Weight(4) 'sets starting glucose interval scale weight
-        s(11) = s(10) 'Initialize end weight to prevent negative display if feed is skipped
         If procDay = 0 Then 'should never happen
             .logmessage("Phase: 10.  Day: " & procDay & ".  Unit #: " & .unit & ".  ---No Glucose addition needed, proceeding to Phase 13.")
             .phase = .phase + 5
@@ -644,7 +661,6 @@ Select Case .phase
     End If
     '_____________________________________________________________________________________________________________
         s(10) = Scale_Weight(4) 'Static glucose interval starting scale weight
-        s(11) = s(10) 'Initialize end weight to prevent negative display
         s(12) = .offlineB 'recorded glucose value
         
         If .InoculationTime_H > s(6) and (.runtime_H - .phaseStart_H) > 0.1/60 Then 'waits for respective feed time + 6s delay; 
@@ -718,6 +734,9 @@ Select Case .phase
 '==========================================================================================
 
     Case 15
+        .logMessage("Phase 15: Finalizing AutoFeed and Antifoam Actions") 'Line 737, 738, and 739 are for experimental antifoam script.
+        a(17) = 0 'Reset AFOAM_COUNTER
+        .phase = 2 'Reset to an initial or loop start phase
         .pumpAActive = False
         If .runtime_H - .phaseStart_H < 0.1/60 Then 
         .logwarning("██ - Phase: 15 - ██ - Day: " & procDay & " - ██ - Unit #: " & .unit & ". - ████ - Total Feeds: - ██ - Feed A: " & formatNumber(MajorFeed_Fed, 2) & " [g]. Feed B: " & s(9) & " [g]. Glucose:  " & formatNumber(glucoseFeed_Fed, 2) & "[g] - ██")

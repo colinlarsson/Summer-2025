@@ -2,6 +2,10 @@
 
 ## Automated Feeding Update Log
 
+### 2025-06-25 Updates Autofeed 4.19
+
+Archived older versions of script, added antifoam test scripts
+
 ### 2025-06-24 Updates 4.17
 
 **Phase 8:** When the start weight for Feed A is recorded in s(2), end weight s(3) is copied. This prevents .intF from showing incorrect values when Feed A is skipped.

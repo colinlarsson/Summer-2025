@@ -1,5 +1,5 @@
 'Abbvie | Dynamic time trigger and gravimetric response feed | JDL CL 03-13-2025
-'Version 4.1 Last Update 2025-06-24
+'Version 4.19 Last Update 2025-06-25
 
 
 'A = Feed B volumetric f.cal = 105
