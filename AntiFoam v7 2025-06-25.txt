@@ -1,0 +1,76 @@
+If P IsNot Nothing Then
+    With P
+
+        ' --- Constants ---
+        Dim MAX_SHOTS
+        Dim THRESHOLD
+        Dim SHOT_VOLUME
+        MAX_SHOTS = 5
+        THRESHOLD = 500
+        SHOT_VOLUME = 0.5
+
+        ' --- Persistent Variables ---
+        Dim CURRENT_CASE
+        Dim NUMBER_SHOTS
+        Dim LAST_CASE
+
+        ' --- Load persistent state ---
+        If s IsNot Nothing Then
+            CURRENT_CASE = s(17)
+            NUMBER_SHOTS = s(18)
+            LAST_CASE = s(19)
+        Else
+            CURRENT_CASE = 0
+            NUMBER_SHOTS = 0
+            LAST_CASE = -1
+        End If
+
+        ' --- Main Logic ---
+        If CURRENT_CASE = 0 Then
+            ' Case 0: Wait for foam to rise
+            If LAST_CASE <> 0 Then
+                .LogWarning("Foam level low, no anti-foam needed.")
+                LAST_CASE = 0 ' Prevent repeated logwarnings
+            End If
+
+            If .LvlPV >= THRESHOLD Then
+                .LogMessage("test") ' for debugging
+                CURRENT_CASE = 1
+            End If
+
+        ElseIf CURRENT_CASE = 1 Then
+            ' Case 1: Dispense anti-foam
+            If NUMBER_SHOTS < MAX_SHOTS Then
+                .LogWarning("Foam level rising. Adding anti-foam.")
+                .PumpAActive = 1
+                CURRENT_CASE = 2
+            Else
+                CURRENT_CASE = 3
+            End If
+
+        ElseIf CURRENT_CASE = 2 Then
+            ' Case 2: Wait until 0.5 mL anti-foam is dispensed
+            If .VAPV >= SHOT_VOLUME Then
+                NUMBER_SHOTS = NUMBER_SHOTS + 1
+                .PumpAActive = 0
+                .LogMessage("Shot dispensed: " & SHOT_VOLUME & " mL")
+                .LogMessage("Shot #" & NUMBER_SHOTS & " completed")
+                CURRENT_CASE = 0
+            End If
+
+        ElseIf CURRENT_CASE = 3 Then
+            ' Case 3: Max shots reached
+            If LAST_CASE <> 3 Then
+            .LogWarning("Maximum amount of anti-foam shots reached.")
+            End If
+        End If
+
+        ' --- Save persistent state ---
+        Dim a(22) As Double
+        a(17) = CURRENT_CASE
+        a(18) = NUMBER_SHOTS
+        a(19) = LAST_CASE
+        s = a
+
+    End With
+End If
